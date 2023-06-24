@@ -1,7 +1,11 @@
-[ubuntu_node]
-node ansible_host=192.168.56.105
-
-[ubuntu_node:vars]
-ansible_user=ansible
-ansible_port=22
-ansible_ssh_private_key_file=/home/deathfar/.ssh/id_rsa
+---
+all:
+  children:
+    ubuntu_node:
+      hosts:
+        node
+      vars:
+        ansible_host: 192.168.56.105
+        ansible_user: ansible
+        ansible_port: 22
+        ansible_ssh_private_key_file: /home/deathfar/.ssh/id_rsa

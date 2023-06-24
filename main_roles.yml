@@ -3,6 +3,32 @@
   gather_facts: true
   become: true
 
+  tasks:
+  - name: using nginx role with specific tags
+    include_role:
+      name: nginx
+      tasks_from: main.yml
+    tags:
+      - install_nginx 
+      - config_nginx_main
+      - config_nginx_site
+      - html_copy
+      - ensure_nginx_started
+      - install_firewalld
+      - firewalld_rule
+      - healthcheck
+
+  - name: using create_ssl role with specific tags
+    include_role:
+      name: create_ssl
+      tasks_from: main.yml
+    tags:
+      - ssl_directory
+      - generate_open_key
+      - generate_csr
+      - generate_cert
+      - generate_dhparams
+
   roles:
     - role: nginx
     - role: create_ssl

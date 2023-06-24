@@ -4,6 +4,7 @@
   file:
     name: /etc/nginx/ssl
     state: directory
+  tags: ssl_directory
 
 - name: generate an OpenSSL private key
   openssl_privatekey:
@@ -11,6 +12,7 @@
     size: "{{ key_size }}"
     type: "{{ key_type }}"
     backup: yes
+  tags: generate_open_key
 
 - name: generate an OpenSSL Certificate Signing Request with Subject information
   openssl_csr:
@@ -20,6 +22,7 @@
     organization_name: "{{ organization_name }}"
     email_address: "{{ email_address }}"
     common_name: "{{ server_hostname }}"
+  tags: generate_csr
 
 - name: generate a Self Signed OpenSSL certificate
   openssl_certificate:
@@ -27,8 +30,10 @@
     privatekey_path: "/etc/nginx/ssl/{{ server_hostname }}_privkey.pem"
     csr_path: "/etc/nginx/ssl/{{ server_hostname }}.csr"
     provider: selfsigned
+  tags: generate_cert
 
-- name: Generate dhparams
+- name: generate dhparams
   shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
   args:
-    creates: /etc/nginx/dhparams.pem  
+    creates: /etc/nginx/dhparams.pem
+  tags: generate_dhparams  
