@@ -1,0 +1,8 @@
+---
+- hosts: ubuntu_node
+  gather_facts: true
+  become: true
+
+  roles:
+    - role: nginx
+    - role: create_ssl

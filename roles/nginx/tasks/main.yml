@@ -1,0 +1,54 @@
+---
+# tasks file for nginx
+- name: "Install nginx via apt"
+  ansible.builtin.apt:
+    name: "nginx"
+    state: "latest"
+    update_cache: true
+
+- name: copy main nginx config file
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+
+- name: copy site's nginx config file
+  template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/conf.d/notls.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+
+- name: copy index.html
+  template:
+    src: templates/index.html.j2
+    dest: /usr/share/nginx/html/index.html
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+
+- name: ensure nginx is enabled and started
+  service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Install firewalld
+  package:
+    name: firewalld
+    state: present
+
+- name: insert firewalld rule for nginx
+  firewalld:
+    port: "{{ nginx_port_no_tls }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  ignore_errors: true
+  notify: restart nginx

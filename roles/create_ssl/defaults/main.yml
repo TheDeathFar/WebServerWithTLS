@@ -1,0 +1,8 @@
+---
+# defaults file for create_ssl
+server_hostname: anspractice.ru
+key_size: 4096
+key_type: RSA 
+country_name: KE
+email_address: admin@anspractice.ru
+organization_name: anspractice

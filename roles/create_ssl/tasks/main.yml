@@ -1,0 +1,34 @@
+---
+# tasks file for create_ssl
+- name: create ssl directory
+  file:
+    name: /etc/nginx/ssl
+    state: directory
+
+- name: generate an OpenSSL private key
+  openssl_privatekey:
+    path: "/etc/nginx/ssl/{{ server_hostname }}_privkey.pem"
+    size: "{{ key_size }}"
+    type: "{{ key_type }}"
+    backup: yes
+
+- name: generate an OpenSSL Certificate Signing Request with Subject information
+  openssl_csr:
+    path: "/etc/nginx/ssl/{{ server_hostname }}.csr"
+    privatekey_path: "/etc/nginx/ssl/{{ server_hostname }}_privkey.pem"
+    country_name: "{{ country_name }}"
+    organization_name: "{{ organization_name }}"
+    email_address: "{{ email_address }}"
+    common_name: "{{ server_hostname }}"
+
+- name: generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: "/etc/nginx/ssl/{{ server_hostname }}_cert.pem"
+    privatekey_path: "/etc/nginx/ssl/{{ server_hostname }}_privkey.pem"
+    csr_path: "/etc/nginx/ssl/{{ server_hostname }}.csr"
+    provider: selfsigned
+
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
+  args:
+    creates: /etc/nginx/dhparams.pem  

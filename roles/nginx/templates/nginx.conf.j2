@@ -1,0 +1,22 @@
+
+server {
+  listen {{ nginx_port_no_tls }};
+  server_name {{ ansible_host }};
+  return 301 https://$server_name$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name {{ ansible_host }};
+  ssl on;
+
+  ssl_certificate         /etc/nginx/ssl/{{ server_hostname }}_cert.pem;
+  ssl_certificate_key     /etc/nginx/ssl/{{ server_hostname }}_privkey.pem;
+
+  root /usr/share/nginx/html;
+  index index.html index.htm;
+
+  location / {
+    try_files $uri $uri/ =404;
+  }
+}
