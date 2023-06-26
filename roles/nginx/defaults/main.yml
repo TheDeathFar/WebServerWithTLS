@@ -1,3 +1,4 @@
 ---
 # defaults file for nginx
 nginx_port_no_tls: 80
+server_hostname: anspractice.ru

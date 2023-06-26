@@ -1,7 +1,7 @@
 ---
 # tasks file for nginx
 - name: install nginx via apt
-  ansible.builtin.apt:
+  apt:
     name: "nginx"
     state: "latest"
     update_cache: true
@@ -17,7 +17,7 @@
   notify: restart nginx
   tags: config_nginx_main
 
-- name: copy site's nginx config file
+- name: copy site's nginx config file with tls
   template:
     src: templates/nginx.conf.j2
     dest: /etc/nginx/conf.d/notls.conf
@@ -25,7 +25,9 @@
     group: root
     mode: 0644
   notify: restart nginx
-  tags: config_nginx_site
+  tags: 
+    - config_nginx_site
+    - notest
 
 - name: copy index.html
   template:
@@ -43,28 +45,3 @@
     state: started
     enabled: true
   tags: ensure_nginx_started
-
-- name: install firewalld
-  package:
-    name: firewalld
-    state: present
-  tags: install_firewalld
-
-- name: insert firewalld rule for nginx
-  firewalld:
-    port: "{{ nginx_port_no_tls }}/tcp"
-    permanent: true
-    state: enabled
-    immediate: true
-  ignore_errors: true
-  notify: restart nginx
-  tags: firewalld_rule
-
-- name: check web site from control server
-  uri:
-    url: "https://{{ ansible_host }}"
-    validate_certs: no
-    return_content: true
-  register: webpage
-  failed_when: webpage.status != 200
-  tags: healthcheck

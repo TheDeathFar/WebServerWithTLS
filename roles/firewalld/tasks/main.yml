@@ -1,0 +1,41 @@
+---
+# tasks file for firewalld
+- name: install firewalld
+  apt:
+    name: firewalld
+    state: present
+    update_cache: true
+  notify: restart firewalld
+  tags: install_firewalld
+
+- name: ensure firewalld is enabled and started
+  service:
+    name: firewalld
+    state: started
+    enabled: true
+  tags: ensure_firewalld_started
+
+- name: insert firewalld rule for nginx
+  firewalld:
+    port: "{{item.port}}/{{item.proto}}"
+    permanent: true
+    state: enabled
+    immediate: true
+  ignore_errors: true
+  notify: restart nginx
+  with_items:
+  - {port: "80", proto: "tcp"}
+  - {port: "443", proto: "tcp"}
+  tags: 
+    - firewalld_rule
+    - notest
+
+- name: check web site from control server
+  uri:
+    url: "https://{{ ansible_host }}"
+    validate_certs: no
+    status_code: 200
+  tags: 
+    - healthcheck
+    - notest
+    - never

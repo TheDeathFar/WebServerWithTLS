@@ -36,4 +36,4 @@
   shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
   args:
     creates: /etc/nginx/dhparams.pem
-  tags: generate_dhparams  
+  tags: generate_dhparams

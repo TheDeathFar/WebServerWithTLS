@@ -14,9 +14,6 @@
       - config_nginx_site
       - html_copy
       - ensure_nginx_started
-      - install_firewalld
-      - firewalld_rule
-      - healthcheck
 
   - name: using create_ssl role with specific tags
     include_role:
@@ -29,6 +26,12 @@
       - generate_cert
       - generate_dhparams
 
-  roles:
-    - role: nginx
-    - role: create_ssl
+  - name: using firewalld role with specific tags
+    include_role:
+      name: firewalld
+      tasks_from: main.yml
+    tags:
+      - install_firewalld
+      - ensure_firewalld_started
+      - firewalld_rule
+      - healthcheck
