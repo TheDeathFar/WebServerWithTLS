@@ -1,7 +1,7 @@
 ---
 # tasks file for nginx
 - name: install nginx via apt
-  apt:
+  package:
     name: "nginx"
     state: "latest"
     update_cache: true
@@ -11,9 +11,6 @@
   copy:
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
-    owner: root
-    group: root
-    mode: 0644
   notify: restart nginx
   tags: config_nginx_main
 
@@ -21,9 +18,6 @@
   template:
     src: templates/nginx.conf.j2
     dest: /etc/nginx/conf.d/notls.conf
-    owner: root
-    group: root
-    mode: 0644
   notify: restart nginx
   tags: 
     - config_nginx_site
@@ -33,9 +27,6 @@
   template:
     src: templates/index.html.j2
     dest: /usr/share/nginx/html/index.html
-    owner: root
-    group: root
-    mode: 0644
   notify: restart nginx
   tags: html_copy
 
@@ -45,3 +36,43 @@
     state: started
     enabled: true
   tags: ensure_nginx_started
+
+- name: install firewalld
+  apt:
+    name: firewalld
+    state: present
+    update_cache: true
+  notify: restart firewalld
+  tags: install_firewalld
+
+- name: ensure firewalld is enabled and started
+  service:
+    name: firewalld
+    state: started
+    enabled: true
+  tags: ensure_firewalld_started
+
+- name: insert firewalld rule for nginx
+  firewalld:
+    port: "{{item.port}}/{{item.proto}}"
+    permanent: true
+    state: enabled
+    immediate: true
+  ignore_errors: true
+  notify: restart nginx
+  with_items:
+  - {port: "80", proto: "tcp"}
+  - {port: "443", proto: "tcp"}
+  tags: 
+    - firewalld_rule
+    - notest
+
+- name: check web site from control server
+  uri:
+    url: "https://localhost"
+    validate_certs: no
+    status_code: 200
+  tags: 
+    - healthcheck
+    - notest
+    - never
