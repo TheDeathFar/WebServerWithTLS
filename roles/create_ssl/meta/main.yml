@@ -3,6 +3,8 @@ dependencies: []
 
 galaxy_info:
   author: TheDeathFar
+  role_name: creat_ssl
+  namespace: ssl
   description: generating self-signed certificates via OpenSSL
   license: license (GPL-2.0-or-later, MIT, etc)
   min_ansible_version: 2.1
